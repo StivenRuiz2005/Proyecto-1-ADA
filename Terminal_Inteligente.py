@@ -1,5 +1,12 @@
+"""
+Autor: Carlos Stiven Ruiz Rojas
+Descripcion: Implementación de algoritmos de fuerza bruta, programación dinámica y voraz para el problema de la terminal inteligente.
+Fecha: 16/10/2024
+"""
+
 import sys
 
+# Ya esta bien
 def brute_force_transform(x, y, a, d, r, i, k):
     def rec_transform(x_i, y_i, x, y):
         # Caso base: Si llegamos al final de ambas cadenas
@@ -53,18 +60,55 @@ def brute_force_transform(x, y, a, d, r, i, k):
     min_cost, operations = rec_transform(0, 0, x, y)
     return min_cost, operations
 
-def greedy_transform(x, y, a, d, r, i, k):
-    pass
+# Ya esta bien
+def greedy_transform(x, Y, a, d, r, i, k):
+    n = len(x)
+    m = len(Y)
+
+    # Variables para los punteros en ambas cadenas
+    cost = 0
+    x_idx = 0  # Índice para x (cadena original)
+    Y_idx = 0  # Índice para Y (cadena destino)
+    
+    # Lista para almacenar el camino de operaciones
+    operations = []
+
+    while x_idx < n and Y_idx < m:
+        if x[x_idx] == Y[Y_idx]:
+            # Avanzamos si los caracteres coinciden
+            x_idx += 1
+            Y_idx += 1
+            cost += a  # Costo de avanzar
+            operations.append('advance')
+        else:
+            # Reemplazamos si no coinciden
+            cost += r
+            x_idx += 1
+            Y_idx += 1
+            operations.append('replace')
+
+    # Si queda algo por eliminar en x (hemos terminado Y)
+    while x_idx < n:
+        # Decidimos si eliminar los caracteres restantes o hacer kill
+        if n - x_idx > 1:  # Si quedan varios caracteres, usamos kill
+            cost += k
+            operations.append('kill')
+            break
+        else:
+            cost += d  # Si queda solo uno, eliminamos
+            operations.append('delete')
+            x_idx += 1
+
+    # Si queda algo por insertar en Y (hemos terminado x)
+    while Y_idx < m:
+        cost += i  # Insertamos caracteres restantes en Y
+        operations.append('insert')
+        Y_idx += 1
+
+    return cost, operations
 
 def dp_transform(x, y, a, d, r, i, k):
     pass
-
-
-
-
-# Ejemplo de uso
-x = "ingenioso"
-y = "ingeniero"
 
 a = 1  # advance cost
 d = 2  # delete cost
@@ -77,9 +121,13 @@ test_cases = [
     ("correr", "cobrar"),     # Ejemplo 2
     ("perro", "pájaro"),      # Ejemplo 3
     ("bailar", "malabar"),    # Ejemplo 4
-    ("ratón", "ratones")       # Ejemplo 5
+    ("ratón", "ratones"),     # Ejemplo 5
+    ("algorithm", "altruistic"),  # Ejemplo 6
 ]
 for x,y in test_cases:
+    print("Fuerza bruta: ")
     print(brute_force_transform(x, y, a, d, r, i, k))
+    #print("DP: ")
     #print(dp_transform(x, y, a, d, r, i, k))
-    #print(greedy_transform(x, y, a, d, r, i, k))
+    print("Greedy: ")
+    print(greedy_transform(x, y, a, d, r, i, k))
