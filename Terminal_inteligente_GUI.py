@@ -1,6 +1,8 @@
 import tkinter as tk
 import sys
 from tkinter import ttk, messagebox
+import time
+import matplotlib.pyplot as plt
 
 """
 Nombre: Carlos Stiven Ruiz Rojas
@@ -10,6 +12,92 @@ Ultima modificacion: 21 / 10 / 2024
 
 """
 #FUNCIONALIDADES
+def main():
+    # Crear la ventana principal
+    global palabra_inicial_entry, palabra_objetivo_entry, advance_entry, delete_entry, replace_entry, insert_entry, kill_entry, metodo_combobox, resultado_text
+    root = tk.Tk()
+    root.title("Transformación de Palabras")
+    root.geometry("800x375")  # Ancho extendido para acomodar el Text al lado
+    root.configure(bg="#223843")  # Fondo claro
+    root.resizable(False, False)  # No permitir redimensionar la ventana
+
+    # Estilos
+    style = ttk.Style()
+    style.configure("TButton", font=("Helvetica", 10, "bold"), foreground="black", background="#007BFF")
+    style.configure("TLabel", font=("Helvetica", 10), background="#F4F4F9", foreground="#223843")
+    style.configure("TEntry", foreground="#333", fieldbackground="#EAEAEA")
+    style.configure("TCombobox", background="#F4F4F9", foreground="#333")
+    style.map("TButton", background=[("active", "#0056b3")])
+
+    # Crear un Frame contenedor para los campos y el Text a su lado
+    main_frame = ttk.Frame(root)
+    main_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+
+    root.grid_columnconfigure(0, weight=1)  # Permitir crecimiento horizontal de la columna
+    root.grid_rowconfigure(0, weight=1)  # Permitir crecimiento vertical de la fila
+
+    # Agregar configuración para que las columnas dentro del frame crezcan adecuadamente
+    main_frame.grid_columnconfigure(0, weight=1)
+    main_frame.grid_columnconfigure(1, weight=3)  # Para darle más espacio al Text
+
+    # Crear un frame para los inputs y labels
+    input_frame = ttk.Frame(main_frame)
+    input_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10, )
+
+    # Crear otro frame para el Text (a la derecha del input_frame)
+    text_frame = ttk.Frame(main_frame)
+    text_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
+
+    # Crear etiquetas y campos de entrada dentro del input_frame
+    tk.Label(input_frame, text="Palabra inicial:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=0, column=0, padx=5, pady=5, sticky="e")
+    palabra_inicial_entry = ttk.Entry(input_frame)
+    palabra_inicial_entry.grid(row=0, column=1, padx=5, pady=5)
+
+    tk.Label(input_frame, text="Palabra objetivo:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=1, column=0, padx=5, pady=5, sticky="e")
+    palabra_objetivo_entry = ttk.Entry(input_frame)
+    palabra_objetivo_entry.grid(row=1, column=1, padx=5, pady=5)
+
+    tk.Label(input_frame, text="Costo Advance:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=2, column=0, padx=5, pady=5, sticky="e")
+    advance_entry = ttk.Entry(input_frame)
+    advance_entry.grid(row=2, column=1, padx=5, pady=5)
+
+    tk.Label(input_frame, text="Costo Delete:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=3, column=0, padx=5, pady=5, sticky="e")
+    delete_entry = ttk.Entry(input_frame)
+    delete_entry.grid(row=3, column=1, padx=5, pady=5)
+
+    tk.Label(input_frame, text="Costo Replace:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=4, column=0, padx=5, pady=5, sticky="e")
+    replace_entry = ttk.Entry(input_frame)
+    replace_entry.grid(row=4, column=1, padx=5, pady=5)
+
+    tk.Label(input_frame, text="Costo Insert:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=5, column=0, padx=5, pady=5, sticky="e")
+    insert_entry = ttk.Entry(input_frame)
+    insert_entry.grid(row=5, column=1, padx=5, pady=5)
+
+    tk.Label(input_frame, text="Costo Kill:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=6, column=0, padx=5, pady=5, sticky="e")
+    kill_entry = ttk.Entry(input_frame)
+    kill_entry.grid(row=6, column=1, padx=5, pady=5)
+
+    tk.Label(input_frame, text="-------------------------------------------------------------------------------", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=7, column=0, columnspan=2 ,padx=5, pady=5, sticky="ew")
+
+    # Combobox para seleccionar el método
+    tk.Label(input_frame, text="Método:", bg="#89959B", fg="#333", font=("Helvetica", 13, "bold")).grid(row=8, column=0, padx=5, pady=5, sticky="e")
+    metodo_combobox = ttk.Combobox(input_frame, values=["Fuerza Bruta", "Greedy", "DP"])
+    metodo_combobox.grid(row=8, column=1, padx=5, pady=5)
+    metodo_combobox.current(0)  # Selección predeterminada
+
+    # Botón para ejecutar el cálculo
+    calcular_button = ttk.Button(input_frame, text="Calcular", command=calcular_transformacion)
+    calcular_button.grid(row=9, column=0, columnspan=2, padx=10, pady=10)
+
+    # TextField para mostrar el resultado dentro del text_frame
+    resultado_text = tk.Text(text_frame, height=18, width=40, bg="#BCC3C7", fg="#333", font=("Helvetica", 10))
+    resultado_text.pack(fill=tk.BOTH, expand=True)
+    
+    mostrar_tiempo = ttk.Button(text_frame, text="Mostrar Tiempo", command=dibujar_grafica)
+    mostrar_tiempo.pack(pady=14)
+
+    # Ejecutar la aplicación
+    root.mainloop()
 
 def brute_force_transform(x, y, a, d, r, i, k):
     def rec_transform(x_i, y_i, x, y):
@@ -75,7 +163,6 @@ def greedy_transform(x, Y, a, d, r, i, k):
     
     # Lista para almacenar el camino de operaciones
     operations = []
-
     while x_idx < n and Y_idx < m:
         if x[x_idx] == Y[Y_idx]:
             # Avanzamos si los caracteres coinciden
@@ -113,7 +200,33 @@ def greedy_transform(x, Y, a, d, r, i, k):
 def dp_transform(x, y, a, d, r, i, k):
     return None, ['None', 'None', 'None', 'None']
 
-# Función para obtener el método seleccionado y calcular el costo mínimo
+def dibujar_grafica():
+    try:
+        n = promedio_bruta.__len__()
+        tamanos = [2**i for i in range(1, n)]
+        plt.figure(figsize=(10, 6))
+        print(promedio_bruta)
+        plt.plot(tamanos, promedio_bruta, label="Fuerza Bruta", marker="o")
+        #plt.plot(tamanos, promedio_bruta, label="Greedy", marker="s")
+        #plt.plot(tamanos, promedio_dp, label="Dinámico", marker="^")
+
+        # Configuración de escala logarítmica
+        plt.xscale("log")
+        plt.yscale("log")
+
+        # Etiquetas y título
+        plt.xlabel("Tamaño de la entrada (longitud de las cadenas)")
+        plt.ylabel("Tiempo de ejecución (segundos)")
+        plt.title("Comparación de tiempos de ejecución por método")
+        plt.legend()
+        plt.grid(True, which="both", linestyle="--", linewidth=0.5)
+
+        # Mostrar la gráfica
+        plt.show()
+    except:
+        messagebox.showerror("Error", "No se han realizado cálculos aún.")
+
+
 def calcular_transformacion():
     x = palabra_inicial_entry.get()
     y = palabra_objetivo_entry.get()
@@ -132,11 +245,21 @@ def calcular_transformacion():
     # Selección del método
     metodo = metodo_combobox.get()
     if metodo == "Fuerza Bruta":
-        costo, operaciones = brute_force_transform(x, y, a, d, r, i, k)
+        start_time = time.time()
+        costo, operaciones= brute_force_transform(x, y, a, d, r, i, k)
+        tiempo = time.time() - start_time
+        promedio_bruta.append(tiempo)
+        print(promedio_bruta)
     elif metodo == "Greedy":
+        start_time = time.time()
         costo, operaciones = greedy_transform(x, y, a, d, r, i, k)
+        tiempo = time.time() - start_time
+        promedio_greedy.append(tiempo)
     elif metodo == "DP":
+        start_time = time.time()
         costo, operaciones = dp_transform(x, y, a, d, r, i, k)
+        tiempo = time.time() - start_time
+        promedio_dp.append(tiempo)
     else:
         messagebox.showerror("Error", "Método no válido.")
         return
@@ -145,89 +268,16 @@ def calcular_transformacion():
     resultado_text.delete(1.0, tk.END)  # Limpiar el campo de texto
     resultado_text.insert(tk.END, f"Costo mínimo: {costo}\n")
     resultado_text.insert(tk.END, "Operaciones: " + ", ".join(operaciones))
+    resultado_text.insert(tk.END, f"\nTiempo de ejecución: {tiempo:.6f} segundos")
 
 
 #INTERFAZ
 
 
-# Crear la ventana principal
-root = tk.Tk()
-root.title("Transformación de Palabras")
-root.geometry("800x375")  # Ancho extendido para acomodar el Text al lado
-root.configure(bg="#223843")  # Fondo claro
-root.resizable(False, False)  # No permitir redimensionar la ventana
-
-# Estilos
-style = ttk.Style()
-style.configure("TButton", font=("Helvetica", 10, "bold"), foreground="black", background="#007BFF")
-style.configure("TLabel", font=("Helvetica", 10), background="#F4F4F9", foreground="#223843")
-style.configure("TEntry", foreground="#333", fieldbackground="#EAEAEA")
-style.configure("TCombobox", background="#F4F4F9", foreground="#333")
-style.map("TButton", background=[("active", "#0056b3")])
-
-# Crear un Frame contenedor para los campos y el Text a su lado
-main_frame = ttk.Frame(root)
-main_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
-
-root.grid_columnconfigure(0, weight=1)  # Permitir crecimiento horizontal de la columna
-root.grid_rowconfigure(0, weight=1)  # Permitir crecimiento vertical de la fila
-
-# Agregar configuración para que las columnas dentro del frame crezcan adecuadamente
-main_frame.grid_columnconfigure(0, weight=1)
-main_frame.grid_columnconfigure(1, weight=3)  # Para darle más espacio al Text
-
-# Crear un frame para los inputs y labels
-input_frame = ttk.Frame(main_frame)
-input_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10, )
-
-# Crear otro frame para el Text (a la derecha del input_frame)
-text_frame = ttk.Frame(main_frame)
-text_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
-
-# Crear etiquetas y campos de entrada dentro del input_frame
-tk.Label(input_frame, text="Palabra inicial:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=0, column=0, padx=5, pady=5, sticky="e")
-palabra_inicial_entry = ttk.Entry(input_frame)
-palabra_inicial_entry.grid(row=0, column=1, padx=5, pady=5)
-
-tk.Label(input_frame, text="Palabra objetivo:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=1, column=0, padx=5, pady=5, sticky="e")
-palabra_objetivo_entry = ttk.Entry(input_frame)
-palabra_objetivo_entry.grid(row=1, column=1, padx=5, pady=5)
-
-tk.Label(input_frame, text="Costo Advance:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=2, column=0, padx=5, pady=5, sticky="e")
-advance_entry = ttk.Entry(input_frame)
-advance_entry.grid(row=2, column=1, padx=5, pady=5)
-
-tk.Label(input_frame, text="Costo Delete:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=3, column=0, padx=5, pady=5, sticky="e")
-delete_entry = ttk.Entry(input_frame)
-delete_entry.grid(row=3, column=1, padx=5, pady=5)
-
-tk.Label(input_frame, text="Costo Replace:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=4, column=0, padx=5, pady=5, sticky="e")
-replace_entry = ttk.Entry(input_frame)
-replace_entry.grid(row=4, column=1, padx=5, pady=5)
-
-tk.Label(input_frame, text="Costo Insert:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=5, column=0, padx=5, pady=5, sticky="e")
-insert_entry = ttk.Entry(input_frame)
-insert_entry.grid(row=5, column=1, padx=5, pady=5)
-
-tk.Label(input_frame, text="Costo Kill:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=6, column=0, padx=5, pady=5, sticky="e")
-kill_entry = ttk.Entry(input_frame)
-kill_entry.grid(row=6, column=1, padx=5, pady=5)
-
-tk.Label(input_frame, text="-------------------------------------------------------------------------------", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=7, column=0, columnspan=2 ,padx=5, pady=5, sticky="ew")
-
-# Combobox para seleccionar el método
-tk.Label(input_frame, text="Método:", bg="#89959B", fg="#333", font=("Helvetica", 13, "bold")).grid(row=8, column=0, padx=5, pady=5, sticky="e")
-metodo_combobox = ttk.Combobox(input_frame, values=["Fuerza Bruta", "Greedy", "DP"])
-metodo_combobox.grid(row=8, column=1, padx=5, pady=5)
-metodo_combobox.current(0)  # Selección predeterminada
-
-# Botón para ejecutar el cálculo
-calcular_button = ttk.Button(input_frame, text="Calcular", command=calcular_transformacion)
-calcular_button.grid(row=9, column=0, columnspan=2, padx=10, pady=10)
-
-# TextField para mostrar el resultado dentro del text_frame
-resultado_text = tk.Text(text_frame, height=20, width=40, bg="#BCC3C7", fg="#333", font=("Helvetica", 10))
-resultado_text.pack(fill=tk.BOTH, expand=True)
-
-# Ejecutar la aplicación
-root.mainloop()
+    
+if __name__ == "__main__":
+    global promedio_bruta, promedio_greedy, promedio_dp
+    promedio_bruta = []
+    promedio_greedy = []
+    promedio_dp = []
+    main()

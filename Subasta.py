@@ -1,14 +1,7 @@
-"""
-Autor: Carlos Stiven Ruiz Rojas
-Descripcion: Implementación de algoritmos de fuerza bruta, programación dinámica y voraz para el problema de la subasta.
-Fecha: 16/10/2024
-Ultima modificacion: 21/10/2024
-"""
-
 import numpy as np
 
 # Implementación de la solución por fuerza bruta
-def fuerza_bruta(oferentes, A):
+def fuerza_bruta(oferentes, A, min_precio_accion):
     n = len(oferentes)
     max_valor = 0
     mejor_asignacion = None
@@ -19,8 +12,16 @@ def fuerza_bruta(oferentes, A):
             for k in range(oferentes[2][1], oferentes[2][2] + 1):
                 asignacion = (i, j, k)
                 
+                # Filtrar ofertas que no cumplen con el precio mínimo
+                if oferentes[0][0] < min_precio_accion or oferentes[1][0] < min_precio_accion or oferentes[2][0] < min_precio_accion:
+                    continue
+                
                 if sum(asignacion) == A:  # Verificamos si la suma de asignaciones es A
-                    valor = sum(p * x for (p, m, M), x in zip(oferentes, asignacion))
+                    valor = 0
+                    for idx, x in enumerate(asignacion):
+                        p = oferentes[idx][0]
+                        valor += p * x
+                    
                     if valor > max_valor:
                         max_valor = valor
                         mejor_asignacion = asignacion
@@ -28,14 +29,18 @@ def fuerza_bruta(oferentes, A):
     return mejor_asignacion, max_valor
 
 
-def programacion_dinamica(oferentes, A):
-    
+def programacion_dinamica(oferentes, A, min_precio_accion):
     n = len(oferentes)
     dp = np.zeros((n + 1, A + 1), dtype=int)
     seleccion = np.zeros((n + 1, A + 1), dtype=int)
     
     for i in range(1, n + 1):
         precio, min_acc, max_acc = oferentes[i - 1]
+
+        # Filtrar oferentes cuyo precio es menor al mínimo aceptado
+        if precio < min_precio_accion:
+            continue
+
         for acciones_restantes in range(A + 1):
             dp[i, acciones_restantes] = dp[i - 1, acciones_restantes]  # No asignar acciones a este oferente
             seleccion[i, acciones_restantes] = 0  # No asignar acciones a este oferente
@@ -52,11 +57,10 @@ def programacion_dinamica(oferentes, A):
         asignacion[i - 1] = seleccion[i, acciones_restantes]
         acciones_restantes -= seleccion[i, acciones_restantes]
 
-    return asignacion.tolist(), int(dp[n, A])
+    return asignacion.tolist(), dp
 
 
-def voraz(oferentes, A):
-    
+def voraz(oferentes, A, min_precio_accion):
     n = len(oferentes)
     asignacion = [0] * n
     valor_total = 0
@@ -68,7 +72,7 @@ def voraz(oferentes, A):
         
         for i in range(n):
             precio, min_acc, max_acc = oferentes[i]
-            if asignacion[i] == 0 and precio > max_precio: 
+            if asignacion[i] == 0 and precio > max_precio and precio >= min_precio_accion: 
                 max_precio = precio
                 max_index = i
 
@@ -90,57 +94,24 @@ def voraz(oferentes, A):
 
 
 def pruebas():
-    # Prueba 1
+    # Prueba 1 con costo mínimo de 200
     print("Prueba 1:")
-    oferentes1 = [(500, 100, 600), (450, 400, 800), (100, 0, 1000)]
     A1 = 1000
-    #print("Fuerza Bruta:", fuerza_bruta(oferentes1, A1))
-    print("Programación Dinámica:", programacion_dinamica(oferentes1, A1))
-    print("Voraz:", voraz(oferentes1, A1))
-    #print()
+    oferentes1 = [(900, 100, 300), (800, 200, 400), (700, 300, 500), (100, 1, A1)]
+    min_precio_accion = 600
+    #print("Fuerza Bruta:", fuerza_bruta(oferentes1, A1, min_precio_accion))
+    print("Programación Dinámica:", programacion_dinamica(oferentes1, A1, min_precio_accion))
+    print("Voraz:", voraz(oferentes1, A1, min_precio_accion))
+    print()
 
     """
-    # Prueba 2
-    print("Prueba 2:")
+    # Otras pruebas (descomentar si es necesario)
     oferentes2 = [(600, 200, 700), (500, 100, 500), (300, 100, 400), (100, 0, 1200)]
     A2 = 1200
-    #print("Fuerza Bruta:", fuerza_bruta(oferentes2, A2))
-    print("Programación Dinámica:", programacion_dinamica(oferentes2, A2))
-    print("Voraz:", voraz(oferentes2, A2))
-    print()
-
-    # Prueba 3
-    print("Prueba 3:")
-    oferentes3 = [(600, 100, 500), (450, 100, 400), (400, 100, 300), (100, 0, 1000)]
-    A3 = 1000
-    #print("Fuerza Bruta:", fuerza_bruta(oferentes3, A3))
-    print("Programación Dinámica:", programacion_dinamica(oferentes3, A3))
-    print("Voraz:", voraz(oferentes3, A3))
-    print()
-
-    # Prueba 4
-    print("Prueba 4:")
-    oferentes4 = [(700, 200, 600), (650, 100, 400), (500, 100, 800), (100, 0, 1500)]
-    A4 = 1500
-    #print("Fuerza Bruta:", fuerza_bruta(oferentes4, A4))
-    print("Programación Dinámica:", programacion_dinamica(oferentes4, A4))
-    print("Voraz:", voraz(oferentes4, A4))
-    print()
-
-    # Prueba 5
-    print("Prueba 5 (Caso donde el Greedy no da solución óptima):")
-    oferentes5 = [(500, 200, 500), (450, 100, 400), (1000, 300, 600), (100, 0, 1000)]
-    A5 = 1000
-    #print("Fuerza Bruta:", fuerza_bruta(oferentes5, A5))
-    print("Programación Dinámica:", programacion_dinamica(oferentes5, A5))
-    print("Voraz:", voraz(oferentes5, A5))
-    print()
-    
-    # Prueba 6
-    print("Prueba 6:")
-    oferentes6 = [(600, 400, 700), (500, 300, 400), (400, 100, 300), (100, 0, 1000)]
-    A6 = 1000
-    print("Fuerza Bruta:", fuerza_bruta(oferentes6, A6))
+    min_precio_accion = 300
+    print("Programación Dinámica:", programacion_dinamica(oferentes2, A2, min_precio_accion))
+    print("Voraz:", voraz(oferentes2, A2, min_precio_accion))
     """
+
 # Ejecutar las pruebas
 pruebas()
