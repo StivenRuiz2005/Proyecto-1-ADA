@@ -72,6 +72,7 @@ def interfaz():
     btn_agregar_oferente = ctk.CTkButton(frame_izquierda, text="Agregar Oferente", command=agregar_oferente, height=40)
     btn_agregar_oferente.pack(pady=10, padx=20, fill="x")
 
+    
     # --- Middle Section: Bidders ---
     ctk.CTkLabel(frame_medio, text="Oferentes", font=("Arial", 24, "bold")).pack(pady=30)
 
@@ -107,38 +108,53 @@ def interfaz():
 
 
 # Implementación de la solución por fuerza bruta
-def fuerza_bruta(oferentes, A):
-    n = len(oferentes)
-    max_valor = 0
+def fuerza_bruta(oferentes, A, min_precio):
+    # Filtrar oferentes válidos
+    oferentes_validos = [
+        (precio, min_acciones, max_acciones) 
+        for precio, min_acciones, max_acciones in oferentes 
+        if precio >= min_precio
+    ]
+    n = len(oferentes_validos)  # Número de oferentes válidos
+
     mejor_asignacion = None
+    max_valor = 0
 
-    def generar_asignaciones(asignacion_actual, nivel, acciones_asignadas):
-        nonlocal max_valor, mejor_asignacion
+    # Función recursiva para generar combinaciones
+    def generar_asignaciones(index, acciones_restantes, asignacion_actual):
+        nonlocal mejor_asignacion, max_valor
 
-        # Verificar límites de asignación
-        if acciones_asignadas > A:
+        # Caso base: Se recorrieron todos los oferentes válidos
+        if index == n:
+            if acciones_restantes == 0:  # Todas las acciones fueron asignadas
+                valor_actual = sum(
+                    asignacion_actual[i] * oferentes_validos[i][0] 
+                    for i in range(n)
+                )
+                if valor_actual > max_valor:
+                    max_valor = valor_actual
+                    # Asignar resultados para todos los oferentes (incluyendo inválidos)
+                    resultado_final = [0] * len(oferentes)
+                    j = 0
+                    for i in range(len(oferentes)):
+                        if oferentes[i][0] >= min_precio:
+                            resultado_final[i] = asignacion_actual[j]
+                            j += 1
+                    mejor_asignacion = resultado_final
             return
 
-        if nivel == n:
-            # Verificar suma total y límites mínimos
-            if acciones_asignadas == A and all(
-                oferentes[i][1] <= asignacion_actual[i] <= oferentes[i][2] 
-                for i in range(n)
-            ):
-                valor = sum(oferentes[i][0] * asignacion_actual[i] for i in range(n))
-                
-                if valor > max_valor:
-                    max_valor = valor
-                    mejor_asignacion = list(asignacion_actual)
-            return
+        # Obtener información del oferente actual
+        precio, min_acciones, max_acciones = oferentes_validos[index]
 
-        # Generar asignaciones considerando límites
-        for x in range(oferentes[nivel][1], oferentes[nivel][2] + 1):
-            asignacion_actual[nivel] = x
-            generar_asignaciones(asignacion_actual, nivel + 1, acciones_asignadas + x)
+        # Probar todas las cantidades posibles de acciones para este oferente
+        for x in range(min_acciones, min(max_acciones, acciones_restantes) + 1):
+            generar_asignaciones(index + 1, acciones_restantes - x, asignacion_actual + [x])
 
-    asignacion_actual = [0] * n
-    generar_asignaciones(asignacion_actual, 0, 0)
+        # Caso donde no se asignan acciones a este oferente
+        generar_asignaciones(index + 1, acciones_restantes, asignacion_actual + [0])
+
+    # Iniciar la generación de asignaciones
+    generar_asignaciones(0, A, [])
 
     return mejor_asignacion, max_valor
 
@@ -266,7 +282,7 @@ def calcular_resultados_subasta():
         algoritmo = combo_algoritmo.get()
         if algoritmo == "Fuerza Bruta":
             start = time.perf_counter()
-            asignacion, valor = [0], 0 
+            asignacion, valor = fuerza_bruta(oferentes, total_acciones, precio_minimo)
             tiempo = time.perf_counter() - start
             promedio_bruta.append(tiempo)         
         elif algoritmo == "Programación Dinámica":
