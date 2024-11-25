@@ -284,6 +284,7 @@ def dibujar_grafica():
         if promedio_greedy.__len__() == promedio_bruta.__len__() and promedio_dp.__len__() == promedio_bruta.__len__():
             n = promedio_bruta.__len__()
             tamanos = [2**i for i in range(1, n+1)]
+            plt.title("Comparación de tiempos de ejecución por método")
             plt.figure(figsize=(10, 6))
             plt.plot(tamanos, promedio_bruta, label="Fuerza Bruta", marker="o")
             plt.plot(tamanos, promedio_greedy, label="Greedy", marker="s")
