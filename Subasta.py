@@ -50,7 +50,7 @@ def fuerza_bruta(oferentes, A, min_precio):
     return mejor_asignacion, max_valor
 
 
-def programacion_dinamica(oferentes, A, min_precio):
+def programacion_dinamica(oferentes, A, min_precio): #Funciona correctamente
     # Filtrar oferentes válidos por precio mínimo
     oferentes_validos = [of for of in oferentes if of[0] >= min_precio]
     n = len(oferentes_validos)
@@ -102,7 +102,7 @@ def programacion_dinamica(oferentes, A, min_precio):
     
     return None, 0
 
-def algoritmo_voraz(oferentes, A, min_precio):
+def algoritmo_voraz(oferentes, A, min_precio): #Funciona correctamente
     # Filtrar y ordenar oferentes por precio de mayor a menor
     oferentes_validos = sorted(
         [of for of in oferentes if of[0] >= min_precio], 

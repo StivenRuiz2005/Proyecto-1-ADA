@@ -65,7 +65,7 @@ def interfaz():
     combo_algoritmo.current(0)
 
     # Botón para calcular resultados
-    btn_calcular = tk.Button(frame_izquierda, text="Calcular", command=calcular_resultados)
+    btn_calcular = tk.Button(frame_izquierda, text="Calcular", command=calcular_resultados_subasta)
     btn_calcular.pack(pady=20)
 
     # Botón para agregar oferente
@@ -239,7 +239,7 @@ def algoritmo_voraz(oferentes, A, min_precio):
     return asignacion, valor_total
 
 # Función que recoge los datos de la interfaz y ejecuta los algoritmos
-def calcular_resultados():
+def calcular_resultados_subasta():
     oferentes = []
     try:
         total_acciones = int(entry_total_acciones.get())

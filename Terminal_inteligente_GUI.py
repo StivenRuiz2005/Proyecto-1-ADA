@@ -93,7 +93,7 @@ def main():
     resultado_text = tk.Text(text_frame, height=10, width=40, bg="#BCC3C7", fg="#333", font=("Helvetica", 10))
     resultado_text.pack(fill=tk.BOTH, expand=True)
     
-    mostrar_tiempo = ttk.Button(text_frame, text="Mostrar Tiempo", command=dibujar_grafica)
+    mostrar_tiempo = ttk.Button(text_frame, text="Mostrar Tiempo", command=dibujar_grafica_terminal)
     mostrar_tiempo.pack(pady=14)
 
     # Ejecutar la aplicación
@@ -201,82 +201,70 @@ def dp_transform(source, target, a, d, r, i, k):
     n = len(source)
     m = len(target)
     
-    # dp[x][y] representa el costo mínimo para transformar source[:x] en target[:y]
-    dp = np.full((n + 1, m + 1), float('inf'))
-    operations = {}  # Para rastrear las operaciones realizadas
+    # dp[x][y][c] representa el costo mínimo para transformar source[x:] en target[y:]
+    dp = np.full((n + 1, m + 1, 2), float('inf'))
+    operation_trace = [[[] for _ in range(m + 1)] for _ in range(n + 1)]
     
-    # Caso base: Transformar una cadena vacía
-    dp[0][0] = 0
-    for x in range(1, n + 1):
-        dp[x][0] = x * d
-        operations[(x, 0)] = 'delete'
-    for y in range(1, m + 1):
-        dp[0][y] = y * i
-        operations[(0, y)] = f"insert {target[y - 1]}"
-    
-    # Llenar la tabla dp con las operaciones mínimas
-    for x in range(1, n + 1):
-        for y in range(1, m + 1):
-            if source[x - 1] == target[y - 1]:  # Avanzamos si los caracteres coinciden
-                cost_advance = dp[x - 1][y - 1] + a
-                if cost_advance < dp[x][y]:
-                    dp[x][y] = cost_advance
-                    operations[(x, y)] = 'advance'
-            
-            # Replace si no coinciden los caracteres
-            cost_replace = dp[x - 1][y - 1] + r
-            if cost_replace < dp[x][y]:
-                dp[x][y] = cost_replace
-                operations[(x, y)] = f"replace with {target[y - 1]}"
-            
-            # Delete un carácter de la cadena original
-            cost_delete = dp[x - 1][y] + d
-            if cost_delete < dp[x][y]:
-                dp[x][y] = cost_delete
-                operations[(x, y)] = 'delete'
-            
-            # Insertar un carácter en la cadena de destino
-            cost_insert = dp[x][y - 1] + i
-            if cost_insert < dp[x][y]:
-                dp[x][y] = cost_insert
-                operations[(x, y)] = f"insert {target[y - 1]}"
-    
-    # Evaluar la operación Kill solo al final
-    for x in range(1, n + 1):
-        cost_kill = dp[x - 1][m] + k
-        if cost_kill < dp[x][m]:
-            dp[x][m] = cost_kill
-            operations[(x, m)] = 'kill'
-    
-    # Reconstruir la secuencia de operaciones
-    x, y = n, m
-    sequence = []
-    
-    while x > 0 or y > 0:
-        op = operations[(x, y)]
-        sequence.append(op)
-        if op == 'advance':
-            x -= 1
-            y -= 1
-        elif op.startswith('replace'):
-            x -= 1
-            y -= 1
-        elif op == 'delete':
-            x -= 1
-        elif op.startswith('insert'):
-            y -= 1
-        elif op == 'kill':
-            break
-    
-    # Asegurar que la operación kill se incluya si es necesaria
-    if 'kill' not in sequence and x > 0:
-        sequence.append('kill')
+    # Caso base
+    dp[n][m][0] = 0
+    dp[n][m][1] = 0
+    operation_trace[n][m] = []
 
-    sequence.reverse()  # Invertir la secuencia para obtener el orden correcto
+    def min_cost(x, y, cursor):
+        if dp[x][y][cursor] != float('inf'):
+            return dp[x][y][cursor]
+            
+        cost = float('inf')
+        best_operations = None
+        
+        if x < n:
+            # ADVANCE
+            if y < m and source[x] == target[y] and cursor == 0:
+                next_cost = min_cost(x + 1, y + 1, 0) + a
+                if next_cost < cost:
+                    cost = next_cost
+                    best_operations = operation_trace[x + 1][y + 1] + ['advance']
+            
+            # DELETE
+            if cursor == 0:
+                next_cost = min_cost(x + 1, y, 0) + d
+                if next_cost < cost:
+                    cost = next_cost
+                    best_operations = operation_trace[x + 1][y] + ['delete']
+            
+            # REPLACE
+            if y < m and cursor == 0:
+                next_cost = min_cost(x + 1, y + 1, 0) + r
+                if next_cost < cost:
+                    cost = next_cost
+                    best_operations = operation_trace[x + 1][y + 1] + ['replace']
+            
+            # KILL
+            if cursor == 0:
+                remaining = m - y
+                next_cost = k + remaining * i
+                if next_cost < cost:
+                    cost = next_cost
+                    best_operations = ['kill'] + ['insert'] * remaining
+        
+        # INSERT
+        if y < m:
+            next_cost = min_cost(x, y + 1, cursor) + i
+            if next_cost < cost:
+                cost = next_cost
+                best_operations = operation_trace[x][y + 1] + ['insert']
+        
+        dp[x][y][cursor] = cost
+        operation_trace[x][y] = best_operations
+        return cost
     
-    return dp[n][m], sequence
+    # Calcular el costo mínimo
+    total_cost = min_cost(0, 0, 0)
+    sequence = operation_trace[0][0][::-1]  # Invertimos el orden de las operaciones al final
 
-def dibujar_grafica(): 
+    return total_cost, sequence
+
+def dibujar_grafica_terminal(): 
     try:
         if promedio_bruta.__len__()  == 0 and promedio_greedy.__len__() == 0 and promedio_dp.__len__() == 0:
             messagebox.showerror("Error", "No se han realizado cálculos aún.")
@@ -284,7 +272,6 @@ def dibujar_grafica():
         if promedio_greedy.__len__() == promedio_bruta.__len__() and promedio_dp.__len__() == promedio_bruta.__len__():
             n = promedio_bruta.__len__()
             tamanos = [2**i for i in range(1, n+1)]
-            plt.title("Comparación de tiempos de ejecución por método")
             plt.figure(figsize=(10, 6))
             plt.plot(tamanos, promedio_bruta, label="Fuerza Bruta", marker="o")
             plt.plot(tamanos, promedio_greedy, label="Greedy", marker="s")
