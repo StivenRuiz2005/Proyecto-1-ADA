@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 """
-Nombre: Carlos Stiven Ruiz Rojas
 Descripcion: Implementación de algoritmos de fuerza bruta, programación dinámica y voraz para el problema de la terminal inteligente con interfaz.
 Fecha: 21 / 10 / 2024
 Ultima modificacion: 24 / 11 / 2024
@@ -277,7 +276,7 @@ def dp_transform(source, target, a, d, r, i, k):
     
     return dp[n][m], sequence
 
-def dibujar_grafica():
+def dibujar_grafica(): 
     try:
         if promedio_bruta.__len__()  == 0 and promedio_greedy.__len__() == 0 and promedio_dp.__len__() == 0:
             messagebox.showerror("Error", "No se han realizado cálculos aún.")
@@ -287,7 +286,7 @@ def dibujar_grafica():
             tamanos = [2**i for i in range(1, n+1)]
             plt.figure(figsize=(10, 6))
             plt.plot(tamanos, promedio_bruta, label="Fuerza Bruta", marker="o")
-            plt.plot(tamanos, promedio_bruta, label="Greedy", marker="s")
+            plt.plot(tamanos, promedio_greedy, label="Greedy", marker="s")
             plt.plot(tamanos, promedio_dp, label="Dinámico", marker="^")
 
             # Configuración de escala logarítmica
