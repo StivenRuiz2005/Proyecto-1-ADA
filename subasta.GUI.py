@@ -3,7 +3,7 @@ from tkinter import ttk
 from tkinter import messagebox
 import matplotlib.pyplot as plt
 import time
-
+import customtkinter as ctk
 """
 Descripcion: Implementación de algoritmos de fuerza bruta, programación dinámica y voraz para el problema de la subasta publica con interfaz.
 Fecha: 21 / 10 / 2024
@@ -13,101 +13,98 @@ Ultima modificacion: 25 / 11 / 2024
 
 def interfaz():
     global entry_total_acciones, entry_precio_minimo, entry_gob_precio, combo_algoritmo, resultado_text, entry_oferentes, frame_oferentes, frame_acciones, frame_precio_minimo, frame_gobierno, frame_algoritmo,algoritmito,tiempito
-    root = tk.Tk()
-    root.title("Asignación de Acciones")
-    root.geometry("800x400")  # Tamaño inicial de la ventana
-    root.resizable(False, False)  # Evitar que se pueda cambiar el tamaño de la ventana
-
-    # Frames principales
-    frame_izquierda = tk.Frame(root, width=200, bg="#f0f0f0")
-    frame_izquierda.pack(side="left", fill="y")
-
-    frame_medio = tk.Frame(root, width=200, bg="#ffffff")
-    frame_medio.pack(side="left", fill="both", expand=False)
-
-    frame_derecha = tk.Frame(root, width=150, bg="#f0f0f0")
-    frame_derecha.pack(fill="y")
-
-    # --- Sección izquierda: Entradas y controles ---
-    tk.Label(frame_izquierda, text="Configuración", bg="#f0f0f0", font=("Arial", 12, "bold")).pack(pady=10)
-
-    # Entradas para el total de acciones
-    frame_acciones = tk.Frame(frame_izquierda, bg="#f0f0f0")
-    frame_acciones.pack(pady=10, fill="x")
-
-    tk.Label(frame_acciones, text="Total de acciones:", bg="#f0f0f0").grid(row=0, column=0, sticky="w")
-    entry_total_acciones = tk.Entry(frame_acciones, width=10)
-    entry_total_acciones.grid(row=0, column=1)
-
-    # Entrada para el precio mínimo por acción
-    frame_precio_minimo = tk.Frame(frame_izquierda, bg="#f0f0f0")
-    frame_precio_minimo.pack(pady=10, fill="x")
-
-    tk.Label(frame_precio_minimo, text="Precio mínimo:", bg="#f0f0f0").grid(row=0, column=0, sticky="w")
-    entry_precio_minimo = tk.Entry(frame_precio_minimo, width=10)
-    entry_precio_minimo.grid(row=0, column=1)
-
-    # Entrada para el precio del gobierno
-    frame_gobierno = tk.Frame(frame_izquierda, bg="#f0f0f0")
-    frame_gobierno.pack(pady=10, fill="x")
-
-    tk.Label(frame_gobierno, text="Precio Gobierno:", bg="#f0f0f0").grid(row=0, column=0, sticky="w")
-    entry_gob_precio = tk.Entry(frame_gobierno, width=10)
-    entry_gob_precio.grid(row=0, column=1)
-
-    # Selección del algoritmo
-    frame_algoritmo = tk.Frame(frame_izquierda, bg="#f0f0f0")
-    frame_algoritmo.pack(pady=10, fill="x")
-
-    tk.Label(frame_algoritmo, text="Algoritmo:", bg="#f0f0f0").grid(row=0, column=0, sticky="w")
-    combo_algoritmo = ttk.Combobox(frame_algoritmo, values=["Fuerza Bruta", "Programación Dinámica", "Voraz"], width=15)
-    combo_algoritmo.grid(row=0, column=1)
-    combo_algoritmo.current(0)
-
-    # Botón para calcular resultados
-    btn_calcular = tk.Button(frame_izquierda, text="Calcular", command=calcular_resultados)
-    btn_calcular.pack(pady=20)
-
-    # Botón para agregar oferente
-    btn_agregar_oferente = tk.Button(frame_izquierda, text="Agregar Oferente", command=agregar_oferente)
-    btn_agregar_oferente.pack(pady=10)
-
-    # --- Sección medio: Oferentes ---
-    tk.Label(frame_medio, text="Oferentes", bg="#ffffff", font=("Arial", 12, "bold")).pack(pady=6)
     
+    ctk.set_appearance_mode("light")
+    ctk.set_default_color_theme("blue")
 
-    frame_oferentes = tk.Frame(frame_medio, bg="#ffffff")
-    frame_oferentes.pack(fill="both", expand=True)
+    root = ctk.CTk()
+    root.title("Asignación de Acciones")
+    root.geometry("1200x800")  # Increased window size
+    root.resizable(False, False)  # Make the window non-resizable
 
-    tk.Label(frame_oferentes, text="Oferente").grid(row=0, column=0)
-    tk.Label(frame_oferentes, text="Pago por acción").grid(row=0, column=1)
-    tk.Label(frame_oferentes, text="Mínimo a comprar").grid(row=0, column=2)
-    tk.Label(frame_oferentes, text="Máximo a comprar").grid(row=0, column=3)
+    # Main frame to hold all content
+    main_frame = ctk.CTkFrame(root)
+    main_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
-    entry_oferentes = []  # Lista para las entradas dinámicas
+    # Left frame
+    frame_izquierda = ctk.CTkFrame(main_frame, width=300)
+    frame_izquierda.pack(side="left", fill="y", padx=10, pady=10)
+    frame_izquierda.pack_propagate(False)  # Prevent frame from shrinking
 
-    # --- Sección derecha: Resultados ---
-    tk.Label(frame_derecha, text="Resultados", bg="#f0f0f0", font=("Arial", 12, "bold")).pack(pady=10)
+    # Middle frame
+    frame_medio = ctk.CTkFrame(main_frame, width=500)
+    frame_medio.pack(side="left", fill="both", expand=True, padx=10, pady=10)
+    frame_medio.pack_propagate(False)  # Prevent frame from shrinking
+
+    # Right frame
+    frame_derecha = ctk.CTkFrame(main_frame, width=300)
+    frame_derecha.pack(side="left", fill="y", padx=10, pady=10)
+    frame_derecha.pack_propagate(False)  # Prevent frame from shrinking
+
+    # --- Left Section: Inputs and Controls ---
+    ctk.CTkLabel(frame_izquierda, text="Configuración", font=("Arial", 20, "bold")).pack(pady=20)
+
+    # Total shares input
+    ctk.CTkLabel(frame_izquierda, text="Total de acciones:").pack(pady=(10, 0))
+    entry_total_acciones = ctk.CTkEntry(frame_izquierda, placeholder_text="Ingrese el total")
+    entry_total_acciones.pack(pady=(0, 10), padx=20, fill="x")
+
+    # Minimum price input
+    ctk.CTkLabel(frame_izquierda, text="Precio mínimo:").pack(pady=(10, 0))
+    entry_precio_minimo = ctk.CTkEntry(frame_izquierda, placeholder_text="Ingrese el precio mínimo")
+    entry_precio_minimo.pack(pady=(0, 10), padx=20, fill="x")
+
+    # Government price input
+    ctk.CTkLabel(frame_izquierda, text="Precio Gobierno:").pack(pady=(10, 0))
+    entry_gob_precio = ctk.CTkEntry(frame_izquierda, placeholder_text="Ingrese el precio del gobierno")
+    entry_gob_precio.pack(pady=(0, 10), padx=20, fill="x")
+
+    # Algorithm selection
+    ctk.CTkLabel(frame_izquierda, text="Algoritmo:").pack(pady=(10, 0))
+    combo_algoritmo = ctk.CTkOptionMenu(frame_izquierda, values=["Fuerza Bruta", "Programación Dinámica", "Voraz"])
+    combo_algoritmo.pack(pady=(0, 20), padx=20, fill="x")
+
+    # Calculate button
+    btn_calcular = ctk.CTkButton(frame_izquierda, text="Calcular", command=calcular_resultados, height=40)
+    btn_calcular.pack(pady=10, padx=20, fill="x")
+
+    # Add bidder button
+    btn_agregar_oferente = ctk.CTkButton(frame_izquierda, text="Agregar Oferente", command=agregar_oferente, height=40)
+    btn_agregar_oferente.pack(pady=10, padx=20, fill="x")
+
+    # --- Middle Section: Bidders ---
+    ctk.CTkLabel(frame_medio, text="Oferentes", font=("Arial", 24, "bold")).pack(pady=30)
+
+    frame_oferentes = ctk.CTkScrollableFrame(frame_medio, width=580, height=650)
+    frame_oferentes.pack(fill="both", expand=True, padx=10, pady=10)
+
+    headers = ["Oferente", "Pago por acción", "Mínimo compra", "Máximo compra  "]
+    for col, header in enumerate(headers):
+        ctk.CTkLabel(frame_oferentes, text=header, font=("Arial", 14, "bold")).grid(row=0, column=col, padx=8, pady=10)
+
+    entry_oferentes = []  # List for dynamic entries
+
+    # --- Right Section: Results ---
+    ctk.CTkLabel(frame_derecha, text="Resultados", font=("Arial", 20, "bold")).pack(pady=20)
 
     resultado_text = tk.StringVar()
-    resultado_label = tk.Label(frame_derecha, textvariable=resultado_text, bg="#f0f0f0", justify="center")
+    resultado_label = ctk.CTkLabel(frame_derecha, textvariable=resultado_text, wraplength=250, font=("Arial", 12))
     resultado_label.pack(pady=10, fill="x")
 
-    # Mostrar algoritmo seleccionado
     algoritmito = tk.StringVar()
-    algoritmo_label = tk.Label(frame_derecha, textvariable=algoritmito, bg="#f0f0f0", justify="center")
+    algoritmo_label = ctk.CTkLabel(frame_derecha, textvariable=algoritmito, font=("Arial", 12))
     algoritmo_label.pack(pady=5, fill="x")
 
-    #mostrar tiempo
     tiempito = tk.StringVar()
-    tiempo_label = tk.Label(frame_derecha, textvariable=tiempito, bg="#f0f0f0", justify="center")
+    tiempo_label = ctk.CTkLabel(frame_derecha, textvariable=tiempito, font=("Arial", 12))
     tiempo_label.pack(pady=5, fill="x")
-    # Botón para mostrar gráfico
-    btn_grafico = tk.Button(frame_derecha, text="Mostrar Gráfico", command=dibujar_grafica)
-    btn_grafico.pack(pady=20)
 
-    # Ejecutar la interfaz
+    # Graph button
+    btn_grafico = ctk.CTkButton(frame_derecha, text="Mostrar Gráfico", command=dibujar_grafica_subasta, height=40)
+    btn_grafico.pack(pady=20, padx=20, fill="x")
+
     root.mainloop()
+
 
 # Implementación de la solución por fuerza bruta
 def fuerza_bruta(oferentes, A):
@@ -312,7 +309,7 @@ def agregar_oferente():
 
     entry_oferentes.append((entry_precio, entry_min, entry_max))
 
-def dibujar_grafica(): 
+def dibujar_grafica_subasta(): 
     try:
         if promedio_bruta.__len__()  == 0 and promedio_greedy.__len__() == 0 and promedio_dp.__len__() == 0:
             messagebox.showerror("Error", "No se han realizado cálculos aún.")
@@ -320,7 +317,6 @@ def dibujar_grafica():
         if promedio_greedy.__len__() == promedio_bruta.__len__() and promedio_dp.__len__() == promedio_bruta.__len__():
             n = promedio_bruta.__len__()
             tamanos = [2**i for i in range(1, n+1)]
-            plt.title("Comparación de tiempos de ejecución por método")
             plt.figure(figsize=(10, 6))
             plt.plot(tamanos, promedio_bruta, label="Fuerza Bruta", marker="o")
             plt.plot(tamanos, promedio_greedy, label="Greedy", marker="s")

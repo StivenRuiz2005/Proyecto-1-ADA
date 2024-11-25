@@ -93,7 +93,7 @@ def main():
     resultado_text = tk.Text(text_frame, height=10, width=40, bg="#BCC3C7", fg="#333", font=("Helvetica", 10))
     resultado_text.pack(fill=tk.BOTH, expand=True)
     
-    mostrar_tiempo = ttk.Button(text_frame, text="Mostrar Tiempo", command=dibujar_grafica)
+    mostrar_tiempo = ttk.Button(text_frame, text="Mostrar Tiempo", command=dibujar_grafica_terminal)
     mostrar_tiempo.pack(pady=14)
 
     # Ejecutar la aplicación
@@ -276,7 +276,7 @@ def dp_transform(source, target, a, d, r, i, k):
     
     return dp[n][m], sequence
 
-def dibujar_grafica(): 
+def dibujar_grafica_terminal(): 
     try:
         if promedio_bruta.__len__()  == 0 and promedio_greedy.__len__() == 0 and promedio_dp.__len__() == 0:
             messagebox.showerror("Error", "No se han realizado cálculos aún.")
