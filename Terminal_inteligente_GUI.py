@@ -3,12 +3,13 @@ import sys
 from tkinter import ttk, messagebox
 import time
 import matplotlib.pyplot as plt
+import numpy as np
 
 """
 Nombre: Carlos Stiven Ruiz Rojas
 Descripcion: Implementación de algoritmos de fuerza bruta, programación dinámica y voraz para el problema de la terminal inteligente con interfaz.
 Fecha: 21 / 10 / 2024
-Ultima modificacion: 21 / 10 / 2024
+Ultima modificacion: 24 / 11 / 2024
 
 """
 #FUNCIONALIDADES
@@ -90,7 +91,7 @@ def main():
     calcular_button.grid(row=9, column=0, columnspan=2, padx=10, pady=10)
 
     # TextField para mostrar el resultado dentro del text_frame
-    resultado_text = tk.Text(text_frame, height=18, width=40, bg="#BCC3C7", fg="#333", font=("Helvetica", 10))
+    resultado_text = tk.Text(text_frame, height=10, width=40, bg="#BCC3C7", fg="#333", font=("Helvetica", 10))
     resultado_text.pack(fill=tk.BOTH, expand=True)
     
     mostrar_tiempo = ttk.Button(text_frame, text="Mostrar Tiempo", command=dibujar_grafica)
@@ -197,35 +198,115 @@ def greedy_transform(x, Y, a, d, r, i, k):
 
     return cost, operations
 
-def dp_transform(x, y, a, d, r, i, k):
-    return None, ['None', 'None', 'None', 'None']
+def dp_transform(source, target, a, d, r, i, k):  
+    n = len(source)
+    m = len(target)
+    
+    # dp[x][y] representa el costo mínimo para transformar source[:x] en target[:y]
+    dp = np.full((n + 1, m + 1), float('inf'))
+    operations = {}  # Para rastrear las operaciones realizadas
+    
+    # Caso base: Transformar una cadena vacía
+    dp[0][0] = 0
+    for x in range(1, n + 1):
+        dp[x][0] = x * d
+        operations[(x, 0)] = 'delete'
+    for y in range(1, m + 1):
+        dp[0][y] = y * i
+        operations[(0, y)] = f"insert {target[y - 1]}"
+    
+    # Llenar la tabla dp con las operaciones mínimas
+    for x in range(1, n + 1):
+        for y in range(1, m + 1):
+            if source[x - 1] == target[y - 1]:  # Avanzamos si los caracteres coinciden
+                cost_advance = dp[x - 1][y - 1] + a
+                if cost_advance < dp[x][y]:
+                    dp[x][y] = cost_advance
+                    operations[(x, y)] = 'advance'
+            
+            # Replace si no coinciden los caracteres
+            cost_replace = dp[x - 1][y - 1] + r
+            if cost_replace < dp[x][y]:
+                dp[x][y] = cost_replace
+                operations[(x, y)] = f"replace with {target[y - 1]}"
+            
+            # Delete un carácter de la cadena original
+            cost_delete = dp[x - 1][y] + d
+            if cost_delete < dp[x][y]:
+                dp[x][y] = cost_delete
+                operations[(x, y)] = 'delete'
+            
+            # Insertar un carácter en la cadena de destino
+            cost_insert = dp[x][y - 1] + i
+            if cost_insert < dp[x][y]:
+                dp[x][y] = cost_insert
+                operations[(x, y)] = f"insert {target[y - 1]}"
+    
+    # Evaluar la operación Kill solo al final
+    for x in range(1, n + 1):
+        cost_kill = dp[x - 1][m] + k
+        if cost_kill < dp[x][m]:
+            dp[x][m] = cost_kill
+            operations[(x, m)] = 'kill'
+    
+    # Reconstruir la secuencia de operaciones
+    x, y = n, m
+    sequence = []
+    
+    while x > 0 or y > 0:
+        op = operations[(x, y)]
+        sequence.append(op)
+        if op == 'advance':
+            x -= 1
+            y -= 1
+        elif op.startswith('replace'):
+            x -= 1
+            y -= 1
+        elif op == 'delete':
+            x -= 1
+        elif op.startswith('insert'):
+            y -= 1
+        elif op == 'kill':
+            break
+    
+    # Asegurar que la operación kill se incluya si es necesaria
+    if 'kill' not in sequence and x > 0:
+        sequence.append('kill')
+
+    sequence.reverse()  # Invertir la secuencia para obtener el orden correcto
+    
+    return dp[n][m], sequence
 
 def dibujar_grafica():
     try:
-        n = promedio_bruta.__len__()
-        tamanos = [2**i for i in range(1, n)]
-        plt.figure(figsize=(10, 6))
-        print(promedio_bruta)
-        plt.plot(tamanos, promedio_bruta, label="Fuerza Bruta", marker="o")
-        #plt.plot(tamanos, promedio_bruta, label="Greedy", marker="s")
-        #plt.plot(tamanos, promedio_dp, label="Dinámico", marker="^")
+        if promedio_bruta.__len__()  == 0 and promedio_greedy.__len__() == 0 and promedio_dp.__len__() == 0:
+            messagebox.showerror("Error", "No se han realizado cálculos aún.")
+            return
+        if promedio_greedy.__len__() == promedio_bruta.__len__() and promedio_dp.__len__() == promedio_bruta.__len__():
+            n = promedio_bruta.__len__()
+            tamanos = [2**i for i in range(1, n+1)]
+            plt.figure(figsize=(10, 6))
+            plt.plot(tamanos, promedio_bruta, label="Fuerza Bruta", marker="o")
+            plt.plot(tamanos, promedio_bruta, label="Greedy", marker="s")
+            plt.plot(tamanos, promedio_dp, label="Dinámico", marker="^")
 
-        # Configuración de escala logarítmica
-        plt.xscale("log")
-        plt.yscale("log")
+            # Configuración de escala logarítmica
+            plt.xscale("log")
+            plt.yscale("log")
 
-        # Etiquetas y título
-        plt.xlabel("Tamaño de la entrada (longitud de las cadenas)")
-        plt.ylabel("Tiempo de ejecución (segundos)")
-        plt.title("Comparación de tiempos de ejecución por método")
-        plt.legend()
-        plt.grid(True, which="both", linestyle="--", linewidth=0.5)
+            # Etiquetas y título
+            plt.xlabel("Tamaño de la entrada (longitud de las cadenas)")
+            plt.ylabel("Tiempo de ejecución (segundos)")
+            plt.title("Comparación de tiempos de ejecución por método")
+            plt.legend()
+            plt.grid(True, which="both", linestyle="--", linewidth=0.5)
 
-        # Mostrar la gráfica
-        plt.show()
+            # Mostrar la gráfica
+            plt.show()
+        else:
+            messagebox.showerror("Error", "No se han realizado cálculos con todos los métodos.")
     except:
         messagebox.showerror("Error", "No se han realizado cálculos aún.")
-
 
 def calcular_transformacion():
     x = palabra_inicial_entry.get()
@@ -245,20 +326,19 @@ def calcular_transformacion():
     # Selección del método
     metodo = metodo_combobox.get()
     if metodo == "Fuerza Bruta":
-        start_time = time.time()
+        start_time = time.perf_counter()
         costo, operaciones= brute_force_transform(x, y, a, d, r, i, k)
-        tiempo = time.time() - start_time
+        tiempo = time.perf_counter() - start_time
         promedio_bruta.append(tiempo)
-        print(promedio_bruta)
     elif metodo == "Greedy":
-        start_time = time.time()
+        start_time = time.perf_counter()
         costo, operaciones = greedy_transform(x, y, a, d, r, i, k)
-        tiempo = time.time() - start_time
+        tiempo = time.perf_counter() - start_time
         promedio_greedy.append(tiempo)
     elif metodo == "DP":
-        start_time = time.time()
+        start_time = time.perf_counter()
         costo, operaciones = dp_transform(x, y, a, d, r, i, k)
-        tiempo = time.time() - start_time
+        tiempo = time.perf_counter() - start_time
         promedio_dp.append(tiempo)
     else:
         messagebox.showerror("Error", "Método no válido.")
@@ -267,14 +347,9 @@ def calcular_transformacion():
     # Mostrar resultado en el text field
     resultado_text.delete(1.0, tk.END)  # Limpiar el campo de texto
     resultado_text.insert(tk.END, f"Costo mínimo: {costo}\n")
-    resultado_text.insert(tk.END, "Operaciones: " + ", ".join(operaciones))
-    resultado_text.insert(tk.END, f"\nTiempo de ejecución: {tiempo:.6f} segundos")
+    resultado_text.insert(tk.END, "Operaciones: \n" + ", \n".join(operaciones))
+    resultado_text.insert(tk.END, f"\nTiempo de ejecución: {tiempo:.20f} segundos")
 
-
-#INTERFAZ
-
-
-    
 if __name__ == "__main__":
     global promedio_bruta, promedio_greedy, promedio_dp
     promedio_bruta = []
