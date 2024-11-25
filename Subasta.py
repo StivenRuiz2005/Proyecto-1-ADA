@@ -50,7 +50,7 @@ def fuerza_bruta(oferentes, A, min_precio):
     return mejor_asignacion, max_valor
 
 
-def programacion_dinamica(oferentes, A, min_precio):
+def programacion_dinamica(oferentes, A, min_precio): #Funciona correctamente
     # Filtrar oferentes válidos por precio mínimo
     oferentes_validos = [of for of in oferentes if of[0] >= min_precio]
     n = len(oferentes_validos)
@@ -102,7 +102,7 @@ def programacion_dinamica(oferentes, A, min_precio):
     
     return None, 0
 
-def algoritmo_voraz(oferentes, A, min_precio):
+def algoritmo_voraz(oferentes, A, min_precio): #Funciona correctamente
     # Filtrar y ordenar oferentes por precio de mayor a menor
     oferentes_validos = sorted(
         [of for of in oferentes if of[0] >= min_precio], 
@@ -147,9 +147,9 @@ def pruebas():
     # Prueba 1 con costo mínimo de 200
     print("Prueba 1:")
     A1 = 1000
-    oferentes1 = [(900, 100, 300), (800, 200, 400), (700, 300, 500), (100, 1, A1)]
+    oferentes1 = [(900, 100, 300), (800, 200, 400), (700, 300, 500), (600, 1, A1)]
     min_precio_accion = 600
-    #print("Fuerza Bruta:", fuerza_bruta(oferentes1, A1, min_precio_accion))
+    print("Fuerza Bruta:", fuerza_bruta(oferentes1, A1, min_precio_accion))
     print("Programación Dinámica:", programacion_dinamica(oferentes1, A1, min_precio_accion))
     print("Voraz:", algoritmo_voraz(oferentes1, A1, min_precio_accion))
     print()

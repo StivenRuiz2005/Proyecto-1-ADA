@@ -65,7 +65,7 @@ def interfaz():
     combo_algoritmo.pack(pady=(0, 20), padx=20, fill="x")
 
     # Calculate button
-    btn_calcular = ctk.CTkButton(frame_izquierda, text="Calcular", command=calcular_resultados, height=40)
+    btn_calcular = ctk.CTkButton(frame_izquierda, text="Calcular", command=calcular_resultados_subasta, height=40)
     btn_calcular.pack(pady=10, padx=20, fill="x")
 
     # Add bidder button
@@ -236,7 +236,7 @@ def algoritmo_voraz(oferentes, A, min_precio):
     return asignacion, valor_total
 
 # Función que recoge los datos de la interfaz y ejecuta los algoritmos
-def calcular_resultados():
+def calcular_resultados_subasta():
     oferentes = []
     try:
         total_acciones = int(entry_total_acciones.get())

@@ -4,6 +4,7 @@ from tkinter import ttk, messagebox
 import time
 import matplotlib.pyplot as plt
 import numpy as np
+import customtkinter as ctk
 
 """
 Descripcion: Implementación de algoritmos de fuerza bruta, programación dinámica y voraz para el problema de la terminal inteligente con interfaz.
@@ -15,88 +16,72 @@ Ultima modificacion: 24 / 11 / 2024
 def main():
     # Crear la ventana principal
     global palabra_inicial_entry, palabra_objetivo_entry, advance_entry, delete_entry, replace_entry, insert_entry, kill_entry, metodo_combobox, resultado_text
-    root = tk.Tk()
+    ctk.set_appearance_mode("light")
+    ctk.set_default_color_theme("blue")
+
+    root = ctk.CTk()
     root.title("Transformación de Palabras")
-    root.geometry("800x375")  # Ancho extendido para acomodar el Text al lado
-    root.configure(bg="#223843")  # Fondo claro
-    root.resizable(False, False)  # No permitir redimensionar la ventana
+    root.geometry("1200x700")
+    root.resizable(False, False)
 
-    # Estilos
-    style = ttk.Style()
-    style.configure("TButton", font=("Helvetica", 10, "bold"), foreground="black", background="#007BFF")
-    style.configure("TLabel", font=("Helvetica", 10), background="#F4F4F9", foreground="#223843")
-    style.configure("TEntry", foreground="#333", fieldbackground="#EAEAEA")
-    style.configure("TCombobox", background="#F4F4F9", foreground="#333")
-    style.map("TButton", background=[("active", "#0056b3")])
+    main_frame = ctk.CTkFrame(root)
+    main_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
-    # Crear un Frame contenedor para los campos y el Text a su lado
-    main_frame = ttk.Frame(root)
-    main_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+    input_frame = ctk.CTkFrame(main_frame, width=400)
+    input_frame.pack(side="left", fill="y", padx=10, pady=10)
+    input_frame.pack_propagate(False)
 
-    root.grid_columnconfigure(0, weight=1)  # Permitir crecimiento horizontal de la columna
-    root.grid_rowconfigure(0, weight=1)  # Permitir crecimiento vertical de la fila
+    text_frame = ctk.CTkFrame(main_frame, width=700)
+    text_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
+    text_frame.pack_propagate(False)
 
-    # Agregar configuración para que las columnas dentro del frame crezcan adecuadamente
-    main_frame.grid_columnconfigure(0, weight=1)
-    main_frame.grid_columnconfigure(1, weight=3)  # Para darle más espacio al Text
+    # Input fields
+    ctk.CTkLabel(input_frame, text="Palabra inicial:", font=("Helvetica", 14, "bold")).pack(pady=(10, 2))
+    palabra_inicial_entry = ctk.CTkEntry(input_frame, font=("Helvetica", 14), width=200)
+    palabra_inicial_entry.pack(pady=(0, 5))
 
-    # Crear un frame para los inputs y labels
-    input_frame = ttk.Frame(main_frame)
-    input_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10, )
+    ctk.CTkLabel(input_frame, text="Palabra objetivo:", font=("Helvetica", 14, "bold")).pack(pady=(10, 2))
+    palabra_objetivo_entry = ctk.CTkEntry(input_frame, font=("Helvetica", 14), width=200)
+    palabra_objetivo_entry.pack(pady=(0, 5))
 
-    # Crear otro frame para el Text (a la derecha del input_frame)
-    text_frame = ttk.Frame(main_frame)
-    text_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
+    ctk.CTkLabel(input_frame, text="Costo Advance:", font=("Helvetica", 14, "bold")).pack(pady=(10, 2))
+    advance_entry = ctk.CTkEntry(input_frame, font=("Helvetica", 14), width=200)
+    advance_entry.pack(pady=(0, 5))
 
-    # Crear etiquetas y campos de entrada dentro del input_frame
-    tk.Label(input_frame, text="Palabra inicial:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=0, column=0, padx=5, pady=5, sticky="e")
-    palabra_inicial_entry = ttk.Entry(input_frame)
-    palabra_inicial_entry.grid(row=0, column=1, padx=5, pady=5)
+    ctk.CTkLabel(input_frame, text="Costo Delete:", font=("Helvetica", 14, "bold")).pack(pady=(10, 2))
+    delete_entry = ctk.CTkEntry(input_frame, font=("Helvetica", 14), width=200)
+    delete_entry.pack(pady=(0, 5))
 
-    tk.Label(input_frame, text="Palabra objetivo:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=1, column=0, padx=5, pady=5, sticky="e")
-    palabra_objetivo_entry = ttk.Entry(input_frame)
-    palabra_objetivo_entry.grid(row=1, column=1, padx=5, pady=5)
+    ctk.CTkLabel(input_frame, text="Costo Replace:", font=("Helvetica", 14, "bold")).pack(pady=(10, 2))
+    replace_entry = ctk.CTkEntry(input_frame, font=("Helvetica", 14), width=200)
+    replace_entry.pack(pady=(0, 5))
 
-    tk.Label(input_frame, text="Costo Advance:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=2, column=0, padx=5, pady=5, sticky="e")
-    advance_entry = ttk.Entry(input_frame)
-    advance_entry.grid(row=2, column=1, padx=5, pady=5)
+    ctk.CTkLabel(input_frame, text="Costo Insert:", font=("Helvetica", 14, "bold")).pack(pady=(10, 2))
+    insert_entry = ctk.CTkEntry(input_frame, font=("Helvetica", 14), width=200)
+    insert_entry.pack(pady=(0, 5))
 
-    tk.Label(input_frame, text="Costo Delete:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=3, column=0, padx=5, pady=5, sticky="e")
-    delete_entry = ttk.Entry(input_frame)
-    delete_entry.grid(row=3, column=1, padx=5, pady=5)
+    ctk.CTkLabel(input_frame, text="Costo Kill:", font=("Helvetica", 14, "bold")).pack(pady=(10, 2))
+    kill_entry = ctk.CTkEntry(input_frame, font=("Helvetica", 14), width=200)
+    kill_entry.pack(pady=(0, 5))
 
-    tk.Label(input_frame, text="Costo Replace:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=4, column=0, padx=5, pady=5, sticky="e")
-    replace_entry = ttk.Entry(input_frame)
-    replace_entry.grid(row=4, column=1, padx=5, pady=5)
+    ctk.CTkLabel(input_frame, text="", height=1).pack(pady=5)
 
-    tk.Label(input_frame, text="Costo Insert:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=5, column=0, padx=5, pady=5, sticky="e")
-    insert_entry = ttk.Entry(input_frame)
-    insert_entry.grid(row=5, column=1, padx=5, pady=5)
+    ctk.CTkLabel(input_frame, text="Método:", font=("Helvetica", 16, "bold")).pack(pady=(5, 2))
+    metodo_combobox = ctk.CTkOptionMenu(input_frame, values=["Fuerza Bruta", "Greedy", "DP"], 
+                                        font=("Helvetica", 14), width=200)
+    metodo_combobox.pack(pady=(0, 5))
 
-    tk.Label(input_frame, text="Costo Kill:", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=6, column=0, padx=5, pady=5, sticky="e")
-    kill_entry = ttk.Entry(input_frame)
-    kill_entry.grid(row=6, column=1, padx=5, pady=5)
+    calcular_button = ctk.CTkButton(input_frame, text="Calcular", command=calcular_transformacion, 
+                                    font=("Helvetica", 16, "bold"), height=40, width=200)
+    calcular_button.pack(pady=(5, 10))
 
-    tk.Label(input_frame, text="-------------------------------------------------------------------------------", bg="#F4F4F9", fg="#333", font=("Helvetica", 10, "bold")).grid(row=7, column=0, columnspan=2 ,padx=5, pady=5, sticky="ew")
+    resultado_text = ctk.CTkTextbox(text_frame, font=("Helvetica", 14), width=680, height=500)
+    resultado_text.pack(pady=20, padx=20, fill="both", expand=True)
 
-    # Combobox para seleccionar el método
-    tk.Label(input_frame, text="Método:", bg="#89959B", fg="#333", font=("Helvetica", 13, "bold")).grid(row=8, column=0, padx=5, pady=5, sticky="e")
-    metodo_combobox = ttk.Combobox(input_frame, values=["Fuerza Bruta", "Greedy", "DP"])
-    metodo_combobox.grid(row=8, column=1, padx=5, pady=5)
-    metodo_combobox.current(0)  # Selección predeterminada
+    mostrar_tiempo = ctk.CTkButton(text_frame, text="Mostrar Tiempo", command=dibujar_grafica_terminal, 
+                                   font=("Helvetica", 16, "bold"), height=40, width=200)
+    mostrar_tiempo.pack(pady=20)
 
-    # Botón para ejecutar el cálculo
-    calcular_button = ttk.Button(input_frame, text="Calcular", command=calcular_transformacion)
-    calcular_button.grid(row=9, column=0, columnspan=2, padx=10, pady=10)
-
-    # TextField para mostrar el resultado dentro del text_frame
-    resultado_text = tk.Text(text_frame, height=10, width=40, bg="#BCC3C7", fg="#333", font=("Helvetica", 10))
-    resultado_text.pack(fill=tk.BOTH, expand=True)
-    
-    mostrar_tiempo = ttk.Button(text_frame, text="Mostrar Tiempo", command=dibujar_grafica_terminal)
-    mostrar_tiempo.pack(pady=14)
-
-    # Ejecutar la aplicación
     root.mainloop()
 
 def brute_force_transform(x, y, a, d, r, i, k):
@@ -201,80 +186,68 @@ def dp_transform(source, target, a, d, r, i, k):
     n = len(source)
     m = len(target)
     
-    # dp[x][y] representa el costo mínimo para transformar source[:x] en target[:y]
-    dp = np.full((n + 1, m + 1), float('inf'))
-    operations = {}  # Para rastrear las operaciones realizadas
+    # dp[x][y][c] representa el costo mínimo para transformar source[x:] en target[y:]
+    dp = np.full((n + 1, m + 1, 2), float('inf'))
+    operation_trace = [[[] for _ in range(m + 1)] for _ in range(n + 1)]
     
-    # Caso base: Transformar una cadena vacía
-    dp[0][0] = 0
-    for x in range(1, n + 1):
-        dp[x][0] = x * d
-        operations[(x, 0)] = 'delete'
-    for y in range(1, m + 1):
-        dp[0][y] = y * i
-        operations[(0, y)] = f"insert {target[y - 1]}"
-    
-    # Llenar la tabla dp con las operaciones mínimas
-    for x in range(1, n + 1):
-        for y in range(1, m + 1):
-            if source[x - 1] == target[y - 1]:  # Avanzamos si los caracteres coinciden
-                cost_advance = dp[x - 1][y - 1] + a
-                if cost_advance < dp[x][y]:
-                    dp[x][y] = cost_advance
-                    operations[(x, y)] = 'advance'
-            
-            # Replace si no coinciden los caracteres
-            cost_replace = dp[x - 1][y - 1] + r
-            if cost_replace < dp[x][y]:
-                dp[x][y] = cost_replace
-                operations[(x, y)] = f"replace with {target[y - 1]}"
-            
-            # Delete un carácter de la cadena original
-            cost_delete = dp[x - 1][y] + d
-            if cost_delete < dp[x][y]:
-                dp[x][y] = cost_delete
-                operations[(x, y)] = 'delete'
-            
-            # Insertar un carácter en la cadena de destino
-            cost_insert = dp[x][y - 1] + i
-            if cost_insert < dp[x][y]:
-                dp[x][y] = cost_insert
-                operations[(x, y)] = f"insert {target[y - 1]}"
-    
-    # Evaluar la operación Kill solo al final
-    for x in range(1, n + 1):
-        cost_kill = dp[x - 1][m] + k
-        if cost_kill < dp[x][m]:
-            dp[x][m] = cost_kill
-            operations[(x, m)] = 'kill'
-    
-    # Reconstruir la secuencia de operaciones
-    x, y = n, m
-    sequence = []
-    
-    while x > 0 or y > 0:
-        op = operations[(x, y)]
-        sequence.append(op)
-        if op == 'advance':
-            x -= 1
-            y -= 1
-        elif op.startswith('replace'):
-            x -= 1
-            y -= 1
-        elif op == 'delete':
-            x -= 1
-        elif op.startswith('insert'):
-            y -= 1
-        elif op == 'kill':
-            break
-    
-    # Asegurar que la operación kill se incluya si es necesaria
-    if 'kill' not in sequence and x > 0:
-        sequence.append('kill')
+    # Caso base
+    dp[n][m][0] = 0
+    dp[n][m][1] = 0
+    operation_trace[n][m] = []
 
-    sequence.reverse()  # Invertir la secuencia para obtener el orden correcto
+    def min_cost(x, y, cursor):
+        if dp[x][y][cursor] != float('inf'):
+            return dp[x][y][cursor]
+            
+        cost = float('inf')
+        best_operations = None
+        
+        if x < n:
+            # ADVANCE
+            if y < m and source[x] == target[y] and cursor == 0:
+                next_cost = min_cost(x + 1, y + 1, 0) + a
+                if next_cost < cost:
+                    cost = next_cost
+                    best_operations = operation_trace[x + 1][y + 1] + ['advance']
+            
+            # DELETE
+            if cursor == 0:
+                next_cost = min_cost(x + 1, y, 0) + d
+                if next_cost < cost:
+                    cost = next_cost
+                    best_operations = operation_trace[x + 1][y] + ['delete']
+            
+            # REPLACE
+            if y < m and cursor == 0:
+                next_cost = min_cost(x + 1, y + 1, 0) + r
+                if next_cost < cost:
+                    cost = next_cost
+                    best_operations = operation_trace[x + 1][y + 1] + ['replace']
+            
+            # KILL
+            if cursor == 0:
+                remaining = m - y
+                next_cost = k + remaining * i
+                if next_cost < cost:
+                    cost = next_cost
+                    best_operations = ['kill'] + ['insert'] * remaining
+        
+        # INSERT
+        if y < m:
+            next_cost = min_cost(x, y + 1, cursor) + i
+            if next_cost < cost:
+                cost = next_cost
+                best_operations = operation_trace[x][y + 1] + ['insert']
+        
+        dp[x][y][cursor] = cost
+        operation_trace[x][y] = best_operations
+        return cost
     
-    return dp[n][m], sequence
+    # Calcular el costo mínimo
+    total_cost = min_cost(0, 0, 0)
+    sequence = operation_trace[0][0][::-1]  # Invertimos el orden de las operaciones al final
+
+    return total_cost, sequence
 
 def dibujar_grafica_terminal(): 
     try:
@@ -284,7 +257,6 @@ def dibujar_grafica_terminal():
         if promedio_greedy.__len__() == promedio_bruta.__len__() and promedio_dp.__len__() == promedio_bruta.__len__():
             n = promedio_bruta.__len__()
             tamanos = [2**i for i in range(1, n+1)]
-            plt.title("Comparación de tiempos de ejecución por método")
             plt.figure(figsize=(10, 6))
             plt.plot(tamanos, promedio_bruta, label="Fuerza Bruta", marker="o")
             plt.plot(tamanos, promedio_greedy, label="Greedy", marker="s")
