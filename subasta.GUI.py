@@ -213,16 +213,16 @@ def programacion_dinamica(oferentes, A, min_precio):
 def algoritmo_voraz(oferentes, A, min_precio):
     # Filtrar y ordenar oferentes por precio de mayor a menor
     oferentes_validos = sorted(
-        [of for of in oferentes if of[0] >= min_precio], 
-        key=lambda x: x[0], 
+        [(precio, min_acciones, max_acciones, idx) for idx, (precio, min_acciones, max_acciones) in enumerate(oferentes) if precio >= min_precio],
+        key=lambda x: x[0],
         reverse=True
     )
     
     asignacion = [0] * len(oferentes)
     acciones_restantes = A
-    
-    for i, (precio, min_acciones, max_acciones) in enumerate(oferentes_validos):
-        # Calcular cuántas acciones puede comprar este oferente
+
+    for precio, min_acciones, max_acciones, idx in oferentes_validos:
+        # Calcular cuántas acciones puede tomar este oferente
         acciones_comprar = min(
             max_acciones, 
             min(acciones_restantes, max_acciones)
@@ -232,21 +232,17 @@ def algoritmo_voraz(oferentes, A, min_precio):
         if acciones_comprar < min_acciones and acciones_restantes >= min_acciones:
             acciones_comprar = min(min_acciones, acciones_restantes)
         
-        # Actualizar asignación y acciones restantes
-        for j, of in enumerate(oferentes):
-            if of[0] == precio:
-                asignacion[j] = acciones_comprar
-                break
-        
+        # Asignar acciones a este oferente
+        asignacion[idx] = acciones_comprar
         acciones_restantes -= acciones_comprar
         
-        # Terminar si ya no hay acciones
+        # Terminar si ya no hay acciones restantes
         if acciones_restantes == 0:
             break
-    
+
     # Calcular valor total
     valor_total = sum(
-        of[0] * asig for of, asig in zip(oferentes, asignacion)
+        oferentes[idx][0] * asignacion[idx] for idx in range(len(oferentes))
     )
     
     return asignacion, valor_total
