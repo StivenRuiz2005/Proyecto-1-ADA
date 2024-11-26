@@ -12,9 +12,7 @@ Fecha: 21 / 10 / 2024
 Ultima modificacion: 24 / 11 / 2024
 
 """
-#FUNCIONALIDADES
 def main():
-    # Crear la ventana principal
     global palabra_inicial_entry, palabra_objetivo_entry, advance_entry, delete_entry, replace_entry, insert_entry, kill_entry, metodo_combobox, resultado_text
     ctk.set_appearance_mode("light")
     ctk.set_default_color_theme("blue")
@@ -86,23 +84,23 @@ def main():
 
 def brute_force_transform(x, y, a, d, r, i, k):
     def rec_transform(x_i, y_i, x, y):
-        # Caso base: Si llegamos al final de ambas cadenas
+    
         if x_i == len(x) and y_i == len(y):
             return 0, []
 
-        # Caso base: Si llegamos al final de 'x' y faltan caracteres en 'y', necesitamos insertar
+       
         if x_i == len(x):
-            return (len(y) - y_i) * i, ['insert'] * (len(y) - y_i)  # Insertar los caracteres restantes de 'y'
+            return (len(y) - y_i) * i, ['insert'] * (len(y) - y_i)  
 
-        # Caso base: Si llegamos al final de 'y' y faltan caracteres en 'x', debemos hacer kill
+        
         if y_i == len(y):
-            return k, ['kill']  # Borrar todos los caracteres restantes de 'x'
+            return k, ['kill']  
 
-        # Iniciamos el costo con un valor alto y una lista vacía de operaciones
+        
         min_cost = sys.maxsize
         operations = []
 
-        # 1. Advance: Si los caracteres son iguales, avanzamos y sumamos el costo de advance
+        
         if x[x_i] == y[y_i]:
             cost, ops = rec_transform(x_i + 1, y_i + 1, x, y)
             cost += a
@@ -110,21 +108,21 @@ def brute_force_transform(x, y, a, d, r, i, k):
                 min_cost = cost
                 operations = ['advance'] + ops
 
-        # 2. Replace: Si los caracteres son diferentes, reemplazamos y sumamos el costo de replace
+        
         cost, ops = rec_transform(x_i + 1, y_i + 1, x, y)
         cost += r
         if cost < min_cost:
             min_cost = cost
             operations = ['replace'] + ops
 
-        # 3. Delete: Borrar el carácter en la posición actual de 'x'
+        
         cost, ops = rec_transform(x_i + 1, y_i, x, y)
         cost += d
         if cost < min_cost:
             min_cost = cost
             operations = ['delete'] + ops
 
-        # 4. Insert: Insertar el carácter de 'y' en 'x'
+        
         cost, ops = rec_transform(x_i, y_i + 1, x, y)
         cost += i
         if cost < min_cost:
@@ -133,7 +131,7 @@ def brute_force_transform(x, y, a, d, r, i, k):
 
         return min_cost, operations
 
-    # Llamada inicial a la función recursiva
+    
     min_cost, operations = rec_transform(0, 0, x, y)
     return min_cost, operations
 
@@ -141,42 +139,38 @@ def greedy_transform(x, Y, a, d, r, i, k):
     n = len(x)
     m = len(Y)
 
-    # Variables para los punteros en ambas cadenas
-    cost = 0
-    x_idx = 0  # Índice para x (cadena original)
-    Y_idx = 0  # Índice para Y (cadena destino)
     
-    # Lista para almacenar el camino de operaciones
+    cost = 0
+    x_idx = 0  
+    Y_idx = 0  
+    
     operations = []
     while x_idx < n and Y_idx < m:
         if x[x_idx] == Y[Y_idx]:
-            # Avanzamos si los caracteres coinciden
             x_idx += 1
             Y_idx += 1
-            cost += a  # Costo de avanzar
+            cost += a  
             operations.append('advance')
         else:
-            # Reemplazamos si no coinciden
+            
             cost += r
             x_idx += 1
             Y_idx += 1
             operations.append('replace')
 
-    # Si queda algo por eliminar en x (hemos terminado Y)
     while x_idx < n:
-        # Decidimos si eliminar los caracteres restantes o hacer kill
-        if n - x_idx > 1:  # Si quedan varios caracteres, usamos kill
+        
+        if n - x_idx > 1: 
             cost += k
             operations.append('kill')
             break
         else:
-            cost += d  # Si queda solo uno, eliminamos
+            cost += d 
             operations.append('delete')
             x_idx += 1
 
-    # Si queda algo por insertar en Y (hemos terminado x)
     while Y_idx < m:
-        cost += i  # Insertamos caracteres restantes en Y
+        cost += i 
         operations.append('insert')
         Y_idx += 1
 
@@ -186,7 +180,7 @@ def dp_transform(source, target, a, d, r, i, k):
     n = len(source)
     m = len(target)
     
-    # dp[x][y][c] representa el costo mínimo para transformar source[x:] en target[y:]
+    
     dp = np.full((n + 1, m + 1, 2), float('inf'))
     operation_trace = [[[] for _ in range(m + 1)] for _ in range(n + 1)]
     
@@ -262,18 +256,14 @@ def dibujar_grafica_terminal():
             plt.plot(tamanos, promedio_greedy, label="Greedy", marker="s")
             plt.plot(tamanos, promedio_dp, label="Dinámico", marker="^")
 
-            # Configuración de escala logarítmica
             plt.xscale("log")
             plt.yscale("log")
 
-            # Etiquetas y título
             plt.xlabel("Tamaño de la entrada (longitud de las cadenas)")
             plt.ylabel("Tiempo de ejecución (segundos)")
             plt.title("Comparación de tiempos de ejecución por método")
             plt.legend()
             plt.grid(True, which="both", linestyle="--", linewidth=0.5)
-
-            # Mostrar la gráfica
             plt.show()
         else:
             messagebox.showerror("Error", "No se han realizado cálculos con todos los métodos.")
@@ -284,7 +274,6 @@ def calcular_transformacion():
     x = palabra_inicial_entry.get()
     y = palabra_objetivo_entry.get()
 
-    # Obtener los valores de costo
     try:
         a = int(advance_entry.get())
         d = int(delete_entry.get())
@@ -316,8 +305,8 @@ def calcular_transformacion():
         messagebox.showerror("Error", "Método no válido.")
         return
 
-    # Mostrar resultado en el text field
-    resultado_text.delete(1.0, tk.END)  # Limpiar el campo de texto
+
+    resultado_text.delete(1.0, tk.END)
     resultado_text.insert(tk.END, f"Costo mínimo: {costo}\n")
     resultado_text.insert(tk.END, "Operaciones: \n" + ", \n".join(operaciones))
     resultado_text.insert(tk.END, f"\nTiempo de ejecución: {tiempo:.20f} segundos")

@@ -19,61 +19,61 @@ def interfaz():
 
     root = ctk.CTk()
     root.title("Asignación de Acciones")
-    root.geometry("1200x800")  # Increased window size
-    root.resizable(False, False)  # Make the window non-resizable
+    root.geometry("1200x800")  
+    root.resizable(False, False)  
 
-    # Main frame to hold all content
+   
     main_frame = ctk.CTkFrame(root)
     main_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
-    # Left frame
+    
     frame_izquierda = ctk.CTkFrame(main_frame, width=300)
     frame_izquierda.pack(side="left", fill="y", padx=10, pady=10)
-    frame_izquierda.pack_propagate(False)  # Prevent frame from shrinking
+    frame_izquierda.pack_propagate(False) 
 
-    # Middle frame
+    
     frame_medio = ctk.CTkFrame(main_frame, width=500)
     frame_medio.pack(side="left", fill="both", expand=True, padx=10, pady=10)
-    frame_medio.pack_propagate(False)  # Prevent frame from shrinking
+    frame_medio.pack_propagate(False)  
 
-    # Right frame
+    
     frame_derecha = ctk.CTkFrame(main_frame, width=300)
     frame_derecha.pack(side="left", fill="y", padx=10, pady=10)
-    frame_derecha.pack_propagate(False)  # Prevent frame from shrinking
+    frame_derecha.pack_propagate(False)  
 
-    # --- Left Section: Inputs and Controls ---
+    
     ctk.CTkLabel(frame_izquierda, text="Configuración", font=("Arial", 20, "bold")).pack(pady=20)
 
-    # Total shares input
+    
     ctk.CTkLabel(frame_izquierda, text="Total de acciones:").pack(pady=(10, 0))
     entry_total_acciones = ctk.CTkEntry(frame_izquierda, placeholder_text="Ingrese el total")
     entry_total_acciones.pack(pady=(0, 10), padx=20, fill="x")
 
-    # Minimum price input
+    
     ctk.CTkLabel(frame_izquierda, text="Precio mínimo:").pack(pady=(10, 0))
     entry_precio_minimo = ctk.CTkEntry(frame_izquierda, placeholder_text="Ingrese el precio mínimo")
     entry_precio_minimo.pack(pady=(0, 10), padx=20, fill="x")
 
-    # Government price input
+    
     ctk.CTkLabel(frame_izquierda, text="Precio Gobierno:").pack(pady=(10, 0))
     entry_gob_precio = ctk.CTkEntry(frame_izquierda, placeholder_text="Ingrese el precio del gobierno")
     entry_gob_precio.pack(pady=(0, 10), padx=20, fill="x")
 
-    # Algorithm selection
+    
     ctk.CTkLabel(frame_izquierda, text="Algoritmo:").pack(pady=(10, 0))
     combo_algoritmo = ctk.CTkOptionMenu(frame_izquierda, values=["Fuerza Bruta", "Programación Dinámica", "Voraz"])
     combo_algoritmo.pack(pady=(0, 20), padx=20, fill="x")
 
-    # Calculate button
+    
     btn_calcular = ctk.CTkButton(frame_izquierda, text="Calcular", command=calcular_resultados_subasta, height=40)
     btn_calcular.pack(pady=10, padx=20, fill="x")
 
-    # Add bidder button
+    
     btn_agregar_oferente = ctk.CTkButton(frame_izquierda, text="Agregar Oferente", command=agregar_oferente, height=40)
     btn_agregar_oferente.pack(pady=10, padx=20, fill="x")
 
     
-    # --- Middle Section: Bidders ---
+    
     ctk.CTkLabel(frame_medio, text="Oferentes", font=("Arial", 24, "bold")).pack(pady=30)
 
     frame_oferentes = ctk.CTkScrollableFrame(frame_medio, width=580, height=650)
@@ -83,9 +83,9 @@ def interfaz():
     for col, header in enumerate(headers):
         ctk.CTkLabel(frame_oferentes, text=header, font=("Arial", 14, "bold")).grid(row=0, column=col, padx=8, pady=10)
 
-    entry_oferentes = []  # List for dynamic entries
+    entry_oferentes = []  
 
-    # --- Right Section: Results ---
+    
     ctk.CTkLabel(frame_derecha, text="Resultados", font=("Arial", 20, "bold")).pack(pady=20)
 
     resultado_text = tk.StringVar()
@@ -100,22 +100,19 @@ def interfaz():
     tiempo_label = ctk.CTkLabel(frame_derecha, textvariable=tiempito, font=("Arial", 12))
     tiempo_label.pack(pady=5, fill="x")
 
-    # Graph button
+    
     btn_grafico = ctk.CTkButton(frame_derecha, text="Mostrar Gráfico", command=dibujar_grafica_subasta, height=40)
     btn_grafico.pack(pady=20, padx=20, fill="x")
 
     root.mainloop()
 
-
-# Implementación de la solución por fuerza bruta
 def fuerza_bruta(oferentes, A, min_precio):
-    # Filtrar oferentes válidos
     oferentes_validos = [
         (precio, min_acciones, max_acciones) 
         for precio, min_acciones, max_acciones in oferentes 
         if precio >= min_precio
     ]
-    n = len(oferentes_validos)  # Número de oferentes válidos
+    n = len(oferentes_validos)  
 
     mejor_asignacion = None
     max_valor = 0
@@ -124,16 +121,14 @@ def fuerza_bruta(oferentes, A, min_precio):
     def generar_asignaciones(index, acciones_restantes, asignacion_actual):
         nonlocal mejor_asignacion, max_valor
 
-        # Caso base: Se recorrieron todos los oferentes válidos
         if index == n:
-            if acciones_restantes == 0:  # Todas las acciones fueron asignadas
+            if acciones_restantes == 0:  
                 valor_actual = sum(
                     asignacion_actual[i] * oferentes_validos[i][0] 
                     for i in range(n)
                 )
                 if valor_actual > max_valor:
                     max_valor = valor_actual
-                    # Asignar resultados para todos los oferentes (incluyendo inválidos)
                     resultado_final = [0] * len(oferentes)
                     j = 0
                     for i in range(len(oferentes)):
@@ -143,17 +138,16 @@ def fuerza_bruta(oferentes, A, min_precio):
                     mejor_asignacion = resultado_final
             return
 
-        # Obtener información del oferente actual
+        
         precio, min_acciones, max_acciones = oferentes_validos[index]
 
-        # Probar todas las cantidades posibles de acciones para este oferente
+        
         for x in range(min_acciones, min(max_acciones, acciones_restantes) + 1):
             generar_asignaciones(index + 1, acciones_restantes - x, asignacion_actual + [x])
 
-        # Caso donde no se asignan acciones a este oferente
+        
         generar_asignaciones(index + 1, acciones_restantes, asignacion_actual + [0])
 
-    # Iniciar la generación de asignaciones
     generar_asignaciones(0, A, [])
 
     return mejor_asignacion, max_valor
@@ -211,7 +205,7 @@ def programacion_dinamica(oferentes, A, min_precio):
     return None, 0
 
 def algoritmo_voraz(oferentes, A, min_precio):
-    # Filtrar y ordenar oferentes por precio de mayor a menor
+    
     oferentes_validos = sorted(
         [(precio, min_acciones, max_acciones, idx) for idx, (precio, min_acciones, max_acciones) in enumerate(oferentes) if precio >= min_precio],
         key=lambda x: x[0],
@@ -222,32 +216,31 @@ def algoritmo_voraz(oferentes, A, min_precio):
     acciones_restantes = A
 
     for precio, min_acciones, max_acciones, idx in oferentes_validos:
-        # Calcular cuántas acciones puede tomar este oferente
+        
         acciones_comprar = min(
             max_acciones, 
             min(acciones_restantes, max_acciones)
         )
         
-        # Ajustar si no cumple el mínimo
+       
         if acciones_comprar < min_acciones and acciones_restantes >= min_acciones:
             acciones_comprar = min(min_acciones, acciones_restantes)
         
-        # Asignar acciones a este oferente
+        
         asignacion[idx] = acciones_comprar
         acciones_restantes -= acciones_comprar
         
-        # Terminar si ya no hay acciones restantes
+        
         if acciones_restantes == 0:
             break
 
-    # Calcular valor total
+    
     valor_total = sum(
         oferentes[idx][0] * asignacion[idx] for idx in range(len(oferentes))
     )
     
     return asignacion, valor_total
 
-# Función que recoge los datos de la interfaz y ejecuta los algoritmos
 def calcular_resultados_subasta():
     oferentes = []
     try:
@@ -266,15 +259,14 @@ def calcular_resultados_subasta():
                 raise ValueError(f"Oferente {i + 1}: Valores inválidos. Las acciones mínimas no pueden exceder las máximas.")
 
             if precio < precio_minimo:
-                oferentes.append((0, min_acc, max_acc))  # Ignorar oferente
+                oferentes.append((0, min_acc, max_acc))  
             else:
                 oferentes.append((precio, min_acc, max_acc))
 
-        # Incluir al gobierno como oferente
+        
         precio_gob = int(entry_gob_precio.get())
         oferentes.append((precio_gob, 0, total_acciones))
 
-        # Seleccionar el algoritmo
         algoritmo = combo_algoritmo.get()
         if algoritmo == "Fuerza Bruta":
             start = time.perf_counter()
@@ -292,11 +284,11 @@ def calcular_resultados_subasta():
             tiempo = time.perf_counter() - start
             promedio_greedy.append(tiempo)
             
-        # Generar el texto de resultados
+        
         resultado = f"Ganancia total: {valor}\n"
-        for idx, asign in enumerate(asignacion[:-1]):  # Último es gobierno
+        for idx, asign in enumerate(asignacion[:-1]):  
             resultado += f"Oferente {idx + 1}: Compró {asign} acciones\n"
-        resultado += f"Gobierno: Compró {asignacion[-1]} acciones\n"  # Gobierno separado
+        resultado += f"Gobierno: Compró {asignacion[-1]} acciones\n"  
 
         resultado_text.set(resultado)
         algoritmito.set(f"Algoritmo: {algoritmo}")
@@ -306,7 +298,6 @@ def calcular_resultados_subasta():
     except ValueError as e:
         messagebox.showerror("Error", str(e))
 
-# Función para agregar oferentes dinámicamente
 def agregar_oferente():
     fila = len(entry_oferentes)
     lbl = tk.Label(frame_oferentes, text=f"Oferente {fila + 1}")
@@ -334,18 +325,18 @@ def dibujar_grafica_subasta():
             plt.plot(tamanos, promedio_greedy, label="Greedy", marker="s")
             plt.plot(tamanos, promedio_dp, label="Dinámico", marker="^")
 
-            # Configuración de escala logarítmica
+            
             plt.xscale("log")
             plt.yscale("log")
 
-            # Etiquetas y título
+            
             plt.xlabel("Tamaño de la entrada (longitud de las cadenas)")
             plt.ylabel("Tiempo de ejecución (segundos)")
             plt.title("Comparación de tiempos de ejecución por método")
             plt.legend()
             plt.grid(True, which="both", linestyle="--", linewidth=0.5)
 
-            # Mostrar la gráfica
+            
             plt.show()
         else:
             messagebox.showerror("Error", "No se han realizado cálculos con todos los métodos.")
